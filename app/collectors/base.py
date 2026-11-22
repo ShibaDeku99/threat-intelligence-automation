@@ -201,3 +201,4 @@ class BaseTICollector(ABC):
 
         latency_ms = int((time.perf_counter() - start) * 1000)
         return None, latency_ms, last_status, last_error
+

@@ -299,3 +299,4 @@ def test_urlhaus_no_results_retry_503_and_recent_feed() -> None:
     assert ev.is_malicious_signal is False
     assert len(recent) == 1
     assert recent[0].raw_value == "http://bad.example.com/a.exe"
+

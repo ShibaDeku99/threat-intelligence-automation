@@ -175,3 +175,4 @@ def test_enrichment_engine_without_api_keys_degrades_gracefully() -> None:
     assert result.sources_with_evidence == 0
     assert all(ev.status == EnrichmentStatus.SKIPPED_NO_KEY for ev in result.evidence)
     repo.close()
+

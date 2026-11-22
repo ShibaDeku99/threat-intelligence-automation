@@ -190,3 +190,4 @@ class EnrichmentEngine:
             latest_last_seen=max(last_seen_dates) if last_seen_dates else indicator.last_seen,
             any_active=any_active,
         )
+
