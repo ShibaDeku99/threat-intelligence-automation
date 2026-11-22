@@ -207,3 +207,4 @@ def test_partial_failure_decouples_high_risk_from_lower_confidence() -> None:
     assert report.risk_level == RiskLevel.CRITICAL
     assert report.confidence_score <= 60
     assert "Degraded coverage" in report.summary
+

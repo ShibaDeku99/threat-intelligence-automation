@@ -364,3 +364,4 @@ class ThreatAnalyzer:
             recommended_actions=recommended_actions,
             generated_at=eval_time,
         )
+

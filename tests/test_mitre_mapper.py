@@ -121,3 +121,4 @@ def test_mitre_mapper_persists_mappings_to_repository() -> None:
     assert len(from_db) == len(saved)
     assert from_db[0].technique.technique_id == "T1486"
     repo.close()
+
