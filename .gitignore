@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Secrets & local configuration
+.env
+.env.local
+
+# Local runtime databases & generated reports
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/mitre/enterprise-attack.json
+reports/*
+!reports/.gitkeep
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
