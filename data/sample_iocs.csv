@@ -1,0 +1,12 @@
+ioc,source,tags,notes
+198.51.100.23,SIEM Alert,"test-net,demo","RFC 5737 TEST-NET-2 demo IPv4"
+198[.]51[.]100[.]23,Firewall Log,"test-net,duplicate","Defanged duplicate of 198.51.100.23"
+2001:0db8:0000:0000::0001,Proxy Log,"ipv6,documentation","RFC 3849 documentation IPv6"
+2001:db8::1,Proxy Log,"ipv6,duplicate","Compressed duplicate of documentation IPv6"
+malicious-demo.example.com,DNS Log,"phishing,demo","RFC 2606 safe documentation domain"
+MALICIOUS-DEMO.EXAMPLE.COM.,DNS Log,"phishing,duplicate","Uppercase trailing-dot domain duplicate"
+hxxps://cdn[.]phish-demo[.]example[.]org:443/login/Verify?id=42,Email Gateway,"phishing,url","Defanged URL with default port"
+44d88612fea8a8f36de82e1278abb02f,EDR Alert,"eicar,md5","Standard EICAR antivirus test string MD5"
+44D88612FEA8A8F36DE82E1278ABB02F,EDR Alert,"eicar,duplicate","Uppercase duplicate MD5"
+3395856ce81f2b7382dee72602f798b642f14140,EDR Alert,"eicar,sha1","Standard EICAR test string SHA1"
+275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f,EDR Alert,"eicar,sha256","Standard EICAR test string SHA256"
