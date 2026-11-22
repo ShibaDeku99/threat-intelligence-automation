@@ -138,3 +138,4 @@ def normalize_ioc(raw_input: str, source_hint: str | None = None) -> NormalizedI
         ip_scope_note=ip_scope_note,
         source_hint=source_hint,
     )
+

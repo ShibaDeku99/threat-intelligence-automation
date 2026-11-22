@@ -97,3 +97,4 @@ def test_inspect_ip_scope(
         assert note is None
     else:
         assert note is not None and expected_snippet in note
+

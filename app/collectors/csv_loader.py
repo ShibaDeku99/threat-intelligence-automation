@@ -153,3 +153,4 @@ def load_iocs_from_text(
             continue
         inputs.append(IOCInput(raw_value=cleaned, source_hint=source_hint))
     return inputs
+

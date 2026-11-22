@@ -78,3 +78,4 @@ def test_defang_ioc_safe_rendering() -> None:
     # Hashes must stay unchanged
     md5 = "44d88612fea8a8f36de82e1278abb02f"
     assert defang_ioc(md5, IOCType.MD5) == md5
+

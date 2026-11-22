@@ -89,3 +89,4 @@ def test_load_iocs_from_text_skips_comments_and_blanks() -> None:
     assert len(items) == 2
     assert items[0].source_hint == "Ticket INC-1042"
     assert items[1].raw_value == "hxxps://evil[.]example[.]com/drop"
+

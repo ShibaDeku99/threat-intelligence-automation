@@ -10,3 +10,4 @@ hxxps://cdn[.]phish-demo[.]example[.]org:443/login/Verify?id=42,Email Gateway,"p
 44D88612FEA8A8F36DE82E1278ABB02F,EDR Alert,"eicar,duplicate","Uppercase duplicate MD5"
 3395856ce81f2b7382dee72602f798b642f14140,EDR Alert,"eicar,sha1","Standard EICAR test string SHA1"
 275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f,EDR Alert,"eicar,sha256","Standard EICAR test string SHA256"
+
