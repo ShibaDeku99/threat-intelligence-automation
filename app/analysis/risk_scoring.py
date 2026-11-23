@@ -189,6 +189,20 @@ def determine_classification(
     return Classification.SUSPICIOUS
 
 
+_RISK_LABELS_VI: dict[RiskLevel, str] = {
+    RiskLevel.LOW: "Thấp (Low)",
+    RiskLevel.MEDIUM: "Trung bình (Medium)",
+    RiskLevel.HIGH: "Cao (High)",
+    RiskLevel.CRITICAL: "Nghiêm trọng (Critical)",
+}
+
+_CLASSIFICATION_LABELS_VI: dict[Classification, str] = {
+    Classification.BENIGN_UNKNOWN: "Sạch / Chưa rõ",
+    Classification.SUSPICIOUS: "Đáng ngờ",
+    Classification.MALICIOUS: "Độc hại",
+}
+
+
 def build_summary_and_actions(
     correlation: EnrichmentCorrelation,
     risk_score: int,
@@ -197,7 +211,7 @@ def build_summary_and_actions(
     classification: Classification,
     techniques: list[TechniqueMapping],
 ) -> tuple[str, list[str]]:
-    """Generate a clear, evidence-grounded SOC analyst summary and action checklist."""
+    """Generate a clear, evidence-grounded Vietnamese SOC analyst summary and action checklist."""
     ind = correlation.indicator
     applicable = [
         ev for ev in correlation.evidence if ev.status != EnrichmentStatus.UNSUPPORTED_TYPE
@@ -214,22 +228,25 @@ def build_summary_and_actions(
     ]
     skipped = [ev for ev in applicable if ev.status == EnrichmentStatus.SKIPPED_NO_KEY]
 
+    risk_vi = _RISK_LABELS_VI[risk_level]
+    class_vi = _CLASSIFICATION_LABELS_VI[classification]
+
     parts: list[str] = [
-        f"IOC {ind.normalized_value} ({ind.ioc_type.value.upper()}) is classified as "
-        f"{classification.value} with Heuristic Risk Score {risk_score}/100 ({risk_level.value}) "
-        f"and Confidence Score {confidence_score}/100."
+        f"IOC {ind.normalized_value} ({ind.ioc_type.value.upper()}) được phân loại "
+        f"{class_vi} với Heuristic Risk Score {risk_score}/100 ({risk_vi}) "
+        f"và Độ tin cậy (Confidence Score) {confidence_score}/100."
     ]
 
     if not responded:
         parts.append(
-            "No Threat Intelligence source returned a live response "
-            f"(skipped due to missing keys: {len(skipped)}, failed/timed out: {len(failed)}). "
-            "Do not treat this indicator as verified benign."
+            "Chưa có nguồn Threat Intelligence nào phản hồi trực tiếp "
+            f"(bỏ qua do thiếu key: {len(skipped)}, lỗi/quá thời gian: {len(failed)}). "
+            "Không được coi IOC này là đã xác minh an toàn."
         )
     elif correlation.sources_with_evidence == 0:
         parts.append(
-            f"Checked {len(responded)}/{len(applicable)} applicable source(s) with no "
-            "malicious evidence recorded."
+            f"Đã kiểm tra {len(responded)}/{len(applicable)} nguồn khả dụng và "
+            "không ghi nhận bằng chứng độc hại."
         )
     else:
         confirming_names = [
@@ -238,77 +255,78 @@ def build_summary_and_actions(
             if ev.status == EnrichmentStatus.OK and ev.is_malicious_signal
         ]
         parts.append(
-            f"Confirmed by {correlation.sources_with_evidence} independent source(s): "
+            f"Được xác nhận bởi {correlation.sources_with_evidence} nguồn độc lập: "
             f"{', '.join(confirming_names)}."
         )
         if correlation.malware_families:
             parts.append(
-                f"Associated malware families: {', '.join(correlation.malware_families[:5])}."
+                f"Họ mã độc liên quan: {', '.join(correlation.malware_families[:5])}."
             )
         if correlation.threat_types:
-            parts.append(f"Observed threat context: {', '.join(correlation.threat_types[:5])}.")
+            parts.append(
+                f"Ngữ cảnh mối đe dọa: {', '.join(correlation.threat_types[:5])}."
+            )
         if correlation.any_active is True:
-            parts.append("Indicator is currently reported as active/online.")
+            parts.append("IOC hiện đang được ghi nhận hoạt động (active/online).")
         elif correlation.any_active is False:
-            parts.append("Indicator is currently reported as inactive/offline (historical).")
+            parts.append("IOC hiện đã ngừng hoạt động (offline / dữ liệu lịch sử).")
 
     if techniques:
         tids = ", ".join(m.technique.technique_id for m in techniques[:5])
-        parts.append(f"Mapped MITRE ATT&CK techniques: {tids}.")
+        parts.append(f"Kỹ thuật MITRE ATT&CK ánh xạ được: {tids}.")
 
     if failed:
         failed_names = ", ".join(f"{ev.source_name} ({ev.status.value})" for ev in failed)
-        parts.append(f"Degraded coverage due to source error(s): {failed_names}.")
+        parts.append(f"Độ phủ bị suy giảm do lỗi truy vấn nguồn: {failed_names}.")
 
     if ind.is_reserved_ip and ind.ip_scope_note:
-        parts.append(f"Scope notice: {ind.ip_scope_note}.")
+        parts.append(f"Lưu ý phạm vi IP: {ind.ip_scope_note}.")
 
-    # Build actionable SOC recommendations
+    # Build actionable Vietnamese SOC recommendations
     actions: list[str] = []
     if ind.is_reserved_ip:
         actions.append(
-            "Verify SIEM/firewall alert context: this IP belongs to a non-routable or "
-            "documentation range and may indicate test traffic, internal scanning, or NAT logs."
+            "Kiểm tra lại ngữ cảnh cảnh báo SIEM/Firewall: IP này thuộc dải không định tuyến "
+            "công cộng (dải tài liệu/nội bộ), có thể xuất phát từ lưu lượng thử nghiệm hoặc NAT."
         )
 
     if not responded:
         actions.append(
-            "Configure OTX_API_KEY and URLHAUS_AUTH_KEY in .env (or retry after network recovery) "
-            "to obtain live Threat Intelligence evidence before closing the ticket."
+            "Cấu hình OTX_API_KEY và URLHAUS_AUTH_KEY trong file .env (hoặc thử lại khi mạng "
+            "ổn định) để lấy dữ liệu Threat Intelligence thực tế trước khi đóng cảnh báo."
         )
     elif risk_level in (RiskLevel.CRITICAL, RiskLevel.HIGH):
         actions.append(
-            "Hunt SIEM, firewall, DNS, and proxy logs over the past 30 days for internal "
-            "hosts communicating with this IOC."
+            "Truy vết log SIEM, Firewall, DNS và Proxy trong 30 ngày gần nhất để tìm các máy "
+            "nội bộ có giao tiếp với IOC này."
         )
         actions.append(
-            "Validate false-positive risk and business ownership before applying firewall, "
-            "DNS sinkhole, or EDR blocking rules."
+            "Xác minh nguy cơ cảnh báo giả (false positive) và chủ sở hữu dịch vụ trước khi "
+            "tạo luật chặn trên Firewall, DNS sinkhole hoặc EDR."
         )
         if techniques:
             actions.append(
-                "Review EDR/SIEM detections aligned with mapped MITRE ATT&CK techniques "
+                "Rà soát các rule phát hiện trên EDR/SIEM tương ứng với kỹ thuật MITRE ATT&CK "
                 f"({', '.join(m.technique.technique_id for m in techniques[:4])})."
             )
     elif risk_level == RiskLevel.MEDIUM:
         actions.append(
-            "Correlate this IOC against internal firewall/DNS/proxy logs and monitor for "
-            "repeated or anomalous activity."
+            "Đối chiếu IOC này với log Firewall/DNS/Proxy nội bộ và theo dõi thêm các kết nối "
+            "lặp lại hoặc bất thường."
         )
         actions.append(
-            "Collect additional context from internal EDR telemetry or passive DNS before "
-            "escalating to containment."
+            "Thu thập thêm ngữ cảnh từ EDR nội bộ hoặc passive DNS trước khi nâng mức cô lập."
         )
     else:
         actions.append(
-            "No immediate blocking action warranted based on current evidence; retain in "
-            "watchlist if local SIEM context remains suspicious."
+            "Chưa cần chặn ngay dựa trên bằng chứng hiện tại; giữ trong danh sách theo dõi nếu "
+            "ngữ cảnh SIEM nội bộ vẫn đáng ngờ."
         )
 
     if failed or skipped:
         actions.append(
-            "Re-run enrichment with Force Refresh once degraded or unconfigured TI sources "
-            "are available to raise confidence."
+            "Chạy làm giàu lại với tùy chọn 'Làm mới trực tiếp (bỏ qua cache)' sau khi khắc phục "
+            "nguồn lỗi hoặc bổ sung API key để tăng độ tin cậy."
         )
 
     return " ".join(parts), actions

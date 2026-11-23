@@ -19,15 +19,15 @@ _ALLOWED_URL_SCHEMES: frozenset[str] = frozenset({"http", "https", "ftp"})
 _DOC_NETWORKS_V4: tuple[tuple[ipaddress.IPv4Network, str], ...] = (
     (
         ipaddress.ip_network("192.0.2.0/24"),
-        "RFC 5737 TEST-NET-1 documentation IP (non-routable)",
+        "IP tài liệu RFC 5737 TEST-NET-1 (không định tuyến công cộng)",
     ),
     (
         ipaddress.ip_network("198.51.100.0/24"),
-        "RFC 5737 TEST-NET-2 documentation IP (non-routable)",
+        "IP tài liệu RFC 5737 TEST-NET-2 (không định tuyến công cộng)",
     ),
     (
         ipaddress.ip_network("203.0.113.0/24"),
-        "RFC 5737 TEST-NET-3 documentation IP (non-routable)",
+        "IP tài liệu RFC 5737 TEST-NET-3 (không định tuyến công cộng)",
     ),
 )
 _DOC_NETWORK_V6 = ipaddress.ip_network("2001:db8::/32")
@@ -39,7 +39,7 @@ class IOCValidationError(ValueError):
     def __init__(self, raw_input: str, reason: str) -> None:
         self.raw_input = raw_input
         self.reason = reason
-        super().__init__(f"Invalid IOC '{raw_input}': {reason}")
+        super().__init__(f"IOC không hợp lệ '{raw_input}': {reason}")
 
 
 def inspect_ip_scope(
@@ -51,20 +51,20 @@ def inspect_ip_scope(
             if ip_obj in net:
                 return True, label
     elif ip_obj in _DOC_NETWORK_V6:
-        return True, "RFC 3849 IPv6 documentation address (non-routable)"
+        return True, "IPv6 tài liệu RFC 3849 (không định tuyến công cộng)"
 
     if ip_obj.is_loopback:
-        return True, "Loopback IP address (local host only)"
+        return True, "Địa chỉ IP Loopback (chỉ dùng nội bộ máy chủ)"
     if ip_obj.is_link_local:
-        return True, "Link-local IP address (non-routable)"
+        return True, "Địa chỉ IP Link-local (không định tuyến công cộng)"
     if ip_obj.is_unspecified:
-        return True, "Unspecified IP address"
+        return True, "Địa chỉ IP chưa xác định (Unspecified)"
     if ip_obj.is_multicast:
-        return True, "Multicast IP address"
+        return True, "Địa chỉ IP Multicast"
     if ip_obj.is_private:
-        return True, "Private/internal network IP address (non-routable)"
+        return True, "Địa chỉ IP mạng nội bộ Private (không định tuyến công cộng)"
     if ip_obj.is_reserved or not ip_obj.is_global:
-        return True, "Reserved / non-global IP address"
+        return True, "Địa chỉ IP dành riêng / không định tuyến công cộng"
     return False, None
 
 

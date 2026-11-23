@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -131,13 +131,13 @@
     <header>
       <h1>{{ title }}</h1>
       <div class="meta">
-        Generated (UTC): {{ generated_at }} &middot; Indicators Analyzed: {{ reports | length }}
-        &middot; IOC Display Mode: {{ "Defanged (Safe)" if defanged else "Raw" }}
+        Thời điểm xuất (UTC): {{ generated_at }} &middot; Số lượng IOC đã phân tích: {{ reports | length }}
+        &middot; Chế độ hiển thị IOC: {{ "Đã làm mờ / Defang (An toàn)" if defanged else "Nguyên bản" }}
       </div>
     </header>
 
     <div class="disclaimer">
-      <strong>Analytical Notice:</strong> Heuristic Risk Score is an internal decision-support rubric (0&ndash;100), not an international standard. Risk Score and Confidence Score are intentionally separated; analysts must verify findings before applying blocking controls.
+      <strong>Lưu ý phân tích:</strong> Heuristic Risk Score là thang điểm hỗ trợ ra quyết định nội bộ (0&ndash;100), không phải tiêu chuẩn đánh giá quốc tế. Risk Score và Confidence Score được tách biệt rõ ràng; chuyên viên SOC cần xác minh lại trước khi tạo luật chặn.
     </div>
 
     {% for item in reports %}
@@ -146,18 +146,18 @@
         <div>
           <div class="ioc-value">{{ item.display_ioc }}</div>
           <div class="muted">
-            Type: {{ item.ioc_type }} &middot;
-            Source First Seen: {{ item.source_first_seen }} &middot;
-            Source Last Seen: {{ item.source_last_seen }} &middot;
-            Report Generated: {{ item.generated_at }}
+            Loại: {{ item.ioc_type }} &middot;
+            Nguồn ghi nhận đầu tiên: {{ item.source_first_seen }} &middot;
+            Nguồn ghi nhận gần nhất: {{ item.source_last_seen }} &middot;
+            Thời điểm tạo báo cáo: {{ item.generated_at }}
           </div>
         </div>
         <div class="badges">
-          <span class="badge badge-{{ item.risk_level }}">{{ item.risk_level }} ({{ item.risk_score }}/100)</span>
-          <span class="badge badge-neutral">{{ item.classification }}</span>
-          <span class="badge badge-neutral">Confidence: {{ item.confidence_score }}/100</span>
+          <span class="badge badge-{{ item.risk_level }}">{{ item.risk_level_vi }} ({{ item.risk_score }}/100)</span>
+          <span class="badge badge-neutral">{{ item.classification_vi }}</span>
+          <span class="badge badge-neutral">Độ tin cậy: {{ item.confidence_score }}/100</span>
           {% if item.is_reserved_ip %}
-          <span class="badge badge-warn">Non-Routable / Reserved IP</span>
+          <span class="badge badge-warn">IP đặc biệt / Không định tuyến</span>
           {% endif %}
         </div>
       </div>
@@ -166,47 +166,47 @@
 
       <div class="kpi-grid">
         <div class="kpi">
-          <div class="label">Source Reliability</div>
+          <div class="label">Độ tin cậy nguồn</div>
           <div class="val">{{ item.breakdown.source_reliability }} / 40</div>
           <div class="bar-track"><div class="bar-fill" style="width: {{ (item.breakdown.source_reliability / 40 * 100) | round }}%;"></div></div>
         </div>
         <div class="kpi">
-          <div class="label">Independent Sources</div>
+          <div class="label">Số nguồn độc lập</div>
           <div class="val">{{ item.breakdown.independent_sources }} / 25</div>
           <div class="bar-track"><div class="bar-fill" style="width: {{ (item.breakdown.independent_sources / 25 * 100) | round }}%;"></div></div>
         </div>
         <div class="kpi">
-          <div class="label">Recency</div>
+          <div class="label">Mức độ gần đây</div>
           <div class="val">{{ item.breakdown.recency }} / 20</div>
           <div class="bar-track"><div class="bar-fill" style="width: {{ (item.breakdown.recency / 20 * 100) | round }}%;"></div></div>
         </div>
         <div class="kpi">
-          <div class="label">Activity Status</div>
+          <div class="label">Trạng thái hoạt động</div>
           <div class="val">{{ item.breakdown.activity_status }} / 15</div>
           <div class="bar-track"><div class="bar-fill" style="width: {{ (item.breakdown.activity_status / 15 * 100) | round }}%;"></div></div>
         </div>
       </div>
 
-      <h3>Threat Intelligence Evidence ({{ item.sources_with_evidence }} confirming / {{ item.sources_checked }} checked)</h3>
+      <h3>Bằng chứng Threat Intelligence ({{ item.sources_with_evidence }} nguồn xác nhận / {{ item.sources_checked }} nguồn đã kiểm tra)</h3>
       {% if item.evidence %}
       <table>
         <thead>
           <tr>
-            <th>Source</th>
-            <th>Status</th>
-            <th>Signal</th>
-            <th>Context / Tags</th>
-            <th>Source Last Seen</th>
-            <th>Retrieved At (UTC)</th>
-            <th>Latency</th>
+            <th>Nguồn TI</th>
+            <th>Trạng thái</th>
+            <th>Tín hiệu</th>
+            <th>Ngữ cảnh / Nhãn</th>
+            <th>Nguồn thấy gần nhất</th>
+            <th>Truy vấn lúc (UTC)</th>
+            <th>Độ trễ</th>
           </tr>
         </thead>
         <tbody>
           {% for ev in item.evidence %}
           <tr>
             <td>{{ ev.source_name }}</td>
-            <td>{{ ev.status }}{% if ev.from_cache %} (cached){% endif %}</td>
-            <td>{{ "Malicious" if ev.is_malicious_signal else "None" }}</td>
+            <td>{{ ev.status_vi }}{% if ev.from_cache %} (từ cache){% endif %}</td>
+            <td>{{ "Độc hại" if ev.is_malicious_signal else "Không có" }}</td>
             <td>
               {% if ev.error_message %}
                 <span class="muted">{{ ev.error_message }}</span>
@@ -222,19 +222,19 @@
         </tbody>
       </table>
       {% else %}
-      <p class="muted">No source evidence records available.</p>
+      <p class="muted">Chưa có bản ghi bằng chứng nào từ các nguồn bên ngoài.</p>
       {% endif %}
 
-      <h3>MITRE ATT&amp;CK Mapping</h3>
+      <h3>Ánh xạ MITRE ATT&amp;CK</h3>
       {% if item.techniques %}
       <table>
         <thead>
           <tr>
-            <th>Technique ID</th>
-            <th>Name</th>
-            <th>Tactic</th>
-            <th>Confidence</th>
-            <th>Evidence</th>
+            <th>Mã kỹ thuật</th>
+            <th>Tên kỹ thuật</th>
+            <th>Chiến thuật (Tactic)</th>
+            <th>Mức độ tin cậy</th>
+            <th>Bằng chứng ánh xạ</th>
           </tr>
         </thead>
         <tbody>
@@ -243,17 +243,17 @@
             <td><strong>{{ tech.technique_id }}</strong></td>
             <td>{{ tech.name }}</td>
             <td>{{ tech.tactic }}</td>
-            <td>{{ tech.confidence }}</td>
+            <td>{{ tech.confidence_vi }}</td>
             <td>{{ tech.evidence }}</td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
       {% else %}
-      <p class="muted">No evidence-backed MITRE ATT&amp;CK techniques mapped.</p>
+      <p class="muted">Chưa có kỹ thuật MITRE ATT&amp;CK nào được ánh xạ có bằng chứng.</p>
       {% endif %}
 
-      <h3>Recommended Investigation Actions</h3>
+      <h3>Khuyến nghị hành động điều tra cho SOC</h3>
       <ul class="actions">
         {% for action in item.recommended_actions %}
         <li>{{ action }}</li>
@@ -264,4 +264,3 @@
   </div>
 </body>
 </html>
-

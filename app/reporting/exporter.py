@@ -16,6 +16,34 @@ from app.schemas import ThreatReport, utc_now
 
 _TEMPLATES_DIR = Path(__file__).parent / "templates"
 
+_RISK_VI: dict[str, str] = {
+    "Low": "Thấp (Low)",
+    "Medium": "Trung bình (Medium)",
+    "High": "Cao (High)",
+    "Critical": "Nghiêm trọng (Critical)",
+}
+
+_CLASSIFICATION_VI: dict[str, str] = {
+    "Benign/Unknown": "Sạch / Chưa rõ",
+    "Suspicious": "Đáng ngờ",
+    "Malicious": "Độc hại",
+}
+
+_STATUS_VI: dict[str, str] = {
+    "ok": "Có dữ liệu",
+    "not_found": "Không tìm thấy",
+    "error": "Lỗi API",
+    "timeout": "Quá thời gian",
+    "skipped_no_key": "Bỏ qua (thiếu key)",
+    "unsupported_type": "Không hỗ trợ",
+}
+
+_CONFIDENCE_VI: dict[str, str] = {
+    "high": "Cao",
+    "medium": "Trung bình",
+    "low": "Thấp",
+}
+
 
 def _fmt_dt(value: datetime | None) -> str:
     if value is None:
@@ -135,7 +163,7 @@ def export_csv(
 def render_html_string(
     reports: ThreatReport | Sequence[ThreatReport],
     defang: bool = True,
-    title: str = "Threat Intelligence & IOC Investigation Report",
+    title: str = "Báo cáo Tình báo Mối đe dọa & Điều tra IOC",
 ) -> str:
     """Render an auto-escaped, XSS-safe HTML investigation report using Jinja2."""
     report_list = _normalize_report_list(reports)
@@ -153,19 +181,22 @@ def render_html_string(
             if ev.pulse_count:
                 context_pieces.append(f"Pulses/URLs: {ev.pulse_count}")
             if ev.malware_families:
-                context_pieces.append(f"Malware: {', '.join(ev.malware_families[:5])}")
+                context_pieces.append(f"Mã độc: {', '.join(ev.malware_families[:5])}")
             if ev.threat_types:
-                context_pieces.append(f"Threats: {', '.join(ev.threat_types[:5])}")
+                context_pieces.append(f"Mối đe dọa: {', '.join(ev.threat_types[:5])}")
             if ev.tags:
-                context_pieces.append(f"Tags: {', '.join(ev.tags[:6])}")
+                context_pieces.append(f"Nhãn: {', '.join(ev.tags[:6])}")
             ev_rows.append(
                 {
                     "source_name": ev.source_name,
                     "status": ev.status.value,
+                    "status_vi": _STATUS_VI.get(ev.status.value, ev.status.value),
                     "from_cache": ev.from_cache,
                     "is_malicious_signal": ev.is_malicious_signal,
                     "error_message": ev.error_message,
-                    "context_text": " | ".join(context_pieces) if context_pieces else "No record",
+                    "context_text": (
+                        " | ".join(context_pieces) if context_pieces else "Không có bản ghi"
+                    ),
                     "source_last_seen": _fmt_dt(ev.source_last_seen),
                     "retrieved_at": _fmt_dt(ev.retrieved_at),
                     "latency_ms": ev.latency_ms,
@@ -178,6 +209,7 @@ def render_html_string(
                 "name": m.technique.name,
                 "tactic": m.technique.tactic,
                 "confidence": m.confidence,
+                "confidence_vi": _CONFIDENCE_VI.get(m.confidence, m.confidence),
                 "evidence": m.evidence,
             }
             for m in r.attack_techniques
@@ -189,8 +221,12 @@ def render_html_string(
                 "ioc_type": r.indicator.ioc_type.value.upper(),
                 "risk_score": r.risk_score,
                 "risk_level": r.risk_level.value,
+                "risk_level_vi": _RISK_VI.get(r.risk_level.value, r.risk_level.value),
                 "confidence_score": r.confidence_score,
                 "classification": r.classification.value,
+                "classification_vi": _CLASSIFICATION_VI.get(
+                    r.classification.value, r.classification.value
+                ),
                 "is_reserved_ip": r.indicator.is_reserved_ip,
                 "source_first_seen": _fmt_dt(r.indicator.first_seen),
                 "source_last_seen": _fmt_dt(r.indicator.last_seen),
@@ -217,7 +253,7 @@ def export_html(
     reports: ThreatReport | Sequence[ThreatReport],
     output_path: Path | str,
     defang: bool = True,
-    title: str = "Threat Intelligence & IOC Investigation Report",
+    title: str = "Báo cáo Tình báo Mối đe dọa & Điều tra IOC",
 ) -> Path:
     """Write an auto-escaped HTML Threat Intelligence report to disk."""
     dest = Path(output_path)

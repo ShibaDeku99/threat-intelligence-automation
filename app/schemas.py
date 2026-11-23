@@ -187,8 +187,8 @@ class ThreatReport(BaseModel):
     summary: str
     recommended_actions: list[str] = Field(default_factory=list)
     disclaimer: str = (
-        "Heuristic Risk Score is a decision-support metric, not an international "
-        "standard. Analysts must verify findings before applying blocking controls."
+        "Heuristic Risk Score là chỉ số đánh giá hỗ trợ ra quyết định nội bộ, không phải "
+        "tiêu chuẩn quốc tế. Chuyên viên SOC cần xác minh lại bằng chứng trước khi chặn (block)."
     )
     generated_at: datetime = Field(default_factory=utc_now)
 

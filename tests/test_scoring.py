@@ -96,7 +96,7 @@ def test_critical_multi_source_active_recent_ioc() -> None:
     assert report.confidence_score == 100
     # Reserved TEST-NET notice must appear in summary & recommended actions
     assert "TEST-NET-2" in report.summary
-    assert any("non-routable" in action for action in report.recommended_actions)
+    assert any("không định tuyến" in action for action in report.recommended_actions)
 
     # Reproducibility check
     report_repeat = analyzer.analyze(corr, techniques=techniques, now=FIXED_NOW)
@@ -172,7 +172,7 @@ def test_missing_api_keys_yields_zero_risk_and_zero_confidence() -> None:
     report = ThreatAnalyzer().analyze(corr, now=FIXED_NOW)
     assert report.risk_score == 0
     assert report.confidence_score == 0
-    assert "Do not treat this indicator as verified benign" in report.summary
+    assert "Không được coi IOC này là đã xác minh an toàn" in report.summary
     assert any("OTX_API_KEY" in a for a in report.recommended_actions)
 
 
@@ -206,5 +206,5 @@ def test_partial_failure_decouples_high_risk_from_lower_confidence() -> None:
     assert report.risk_score == 87
     assert report.risk_level == RiskLevel.CRITICAL
     assert report.confidence_score <= 60
-    assert "Degraded coverage" in report.summary
+    assert "Độ phủ bị suy giảm" in report.summary
 

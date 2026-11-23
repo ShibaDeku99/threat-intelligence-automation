@@ -96,7 +96,7 @@ def test_plotly_chart_builders_and_mitre_aggregation() -> None:
 
     mitre_df = collect_top_mitre_techniques([report])
     assert len(mitre_df) == 1
-    assert "T1071" in mitre_df.iloc[0]["Technique"]
+    assert "T1071" in mitre_df.iloc[0]["Kỹ thuật"]
 
 
 def test_streamlit_dashboard_renders_and_handles_sample_workflow(
@@ -116,8 +116,8 @@ def test_streamlit_dashboard_renders_and_handles_sample_workflow(
     assert not at.exception
     assert len(at.tabs) == 4
 
-    # Exercise sidebar "Load Sample IOCs (CSV)" button end-to-end
-    sample_btn = next(b for b in at.sidebar.button if "Load Sample IOCs" in b.label)
+    # Exercise sidebar "Nạp bộ IOC mẫu (CSV)" button end-to-end
+    sample_btn = next(b for b in at.sidebar.button if "Nạp bộ IOC mẫu" in b.label)
     sample_btn.click().run()
     assert not at.exception
-    assert any("Loaded 7 unique IOCs" in msg.value for msg in at.sidebar.success)
+    assert any("Đã nạp thành công 7 IOC duy nhất" in msg.value for msg in at.sidebar.success)
